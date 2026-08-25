@@ -11,6 +11,10 @@ on:
       channel:
         type: string
         default: "dev"
+      android-only:
+        type: boolean
+        required: false
+        default: false
 env:
     REGISTRY_IMAGE: ghcr.io/hiddify/hiddify-core
 
@@ -63,7 +67,7 @@ jobs:
   update_wrt_hash:
     permissions: write-all
     runs-on: ubuntu-latest
-    if: ${{ inputs.channel=='prod' }}
+    if: ${{ inputs.channel == 'prod' && !inputs.android-only }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -199,7 +203,7 @@ jobs:
   build-binary:
     name: Build binary
     # if: github.event_name != 'workflow_dispatch' || inputs.build == 'All' || inputs.build == 'Binary'
-    if: ${{ inputs.channel=='prod' }}
+    if: ${{ inputs.channel == 'prod' && !inputs.android-only }}
     runs-on: ubuntu-latest
     needs:
       - calculate_version
@@ -628,7 +632,7 @@ jobs:
 
   make-upload-docker:
     permissions: write-all
-    if: ${{ inputs.channel=='prod' }}
+    if: ${{ inputs.channel == 'prod' && !inputs.android-only }}
     needs: [upload-release]
     
     runs-on: ubuntu-latest
@@ -693,6 +697,7 @@ jobs:
           retention-days: 1
   merge:
     permissions: write-all
+    if: ${{ inputs.channel == 'prod' && !inputs.android-only }}
     runs-on: ubuntu-latest
     needs:
       - make-upload-docker
