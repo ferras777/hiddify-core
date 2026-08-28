@@ -53,9 +53,6 @@ jobs:
           test -s bin/HiddifyCli.exe
           rm -rf out
           mkdir -p out
-          cp bin/hiddify-core.dll out/
-          cp bin/libcronet.dll out/
-          cp bin/HiddifyCli.exe out/
           tar -czf out/hiddify-lib-windows-amd64.tar.gz -C bin hiddify-core.dll libcronet.dll HiddifyCli.exe
           tar -tzf out/hiddify-lib-windows-amd64.tar.gz
 
