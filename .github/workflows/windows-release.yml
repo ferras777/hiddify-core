@@ -43,7 +43,7 @@ jobs:
 
       - name: Build Windows core
         # The v4.1.2 submodule points to a removed cronet-go revision.
-        run: make CRONET_GO_VERSION=e4926ba205fae5351e3d3eeafff7e7029654424a windows-amd64
+        run: make CRONET_GO_VERSION=v0.0.0-20260413093659-e4926ba205fa windows-amd64
 
       - name: Package Windows core
         run: |
