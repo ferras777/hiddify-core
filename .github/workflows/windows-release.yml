@@ -1,0 +1,75 @@
+name: Windows core release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+.*'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Core source ref to build
+        required: true
+        default: 8e85d15fef2a9a2af89dd73b874bbab961ee187d
+      release-tag:
+        description: GitHub release tag receiving the archive
+        required: true
+        default: v4.1.2
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          check-latest: false
+
+      - name: Setup MinGW
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
+
+      - name: Build Windows core
+        run: make windows-amd64
+
+      - name: Package Windows core
+        run: |
+          set -euo pipefail
+          test -s bin/hiddify-core.dll
+          test -s bin/libcronet.dll
+          test -s bin/HiddifyCli.exe
+          rm -rf out
+          mkdir -p out
+          cp bin/hiddify-core.dll out/
+          cp bin/libcronet.dll out/
+          cp bin/HiddifyCli.exe out/
+          tar -czf out/hiddify-lib-windows-amd64.tar.gz -C bin hiddify-core.dll libcronet.dll HiddifyCli.exe
+          tar -tzf out/hiddify-lib-windows-amd64.tar.gz
+
+      - name: Upload Windows core artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: hiddify-lib-windows-amd64
+          path: out/hiddify-lib-windows-amd64.tar.gz
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish Windows core release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.release-tag || github.ref_name }}
+          files: out/hiddify-lib-windows-amd64.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
