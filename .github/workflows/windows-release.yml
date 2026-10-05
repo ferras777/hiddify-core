@@ -10,11 +10,11 @@ on:
       ref:
         description: Core source ref to build
         required: true
-        default: 8e85d15fef2a9a2af89dd73b874bbab961ee187d
+        default: 542b2cafa78d5b562381e0be6371a1578d5fcf66
       release-tag:
         description: GitHub release tag receiving the archive
         required: true
-        default: v4.1.2
+        default: v4.1.3
 
 permissions:
   contents: write
